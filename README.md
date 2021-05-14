@@ -5,7 +5,7 @@ In fabric.js documentation and tutorial there is no direct solution about crop a
 
 ###Reference Link
 
-[clippath-how-to-fit-the-image-to-the-canvas-after-cropping](hhttps://stackoverflow.com/questions/60816668/fabric-js-clippath-how-to-fit-the-image-to-the-canvas-after-cropping)
+[clippath-how-to-fit-the-image-to-the-canvas-after-cropping](https://stackoverflow.com/questions/60816668/fabric-js-clippath-how-to-fit-the-image-to-the-canvas-after-cropping)
 
 [crop-functionality-using-fabricjs](https://stackoverflow.com/questions/18732876/crop-functionality-using-fabricjs)
 
