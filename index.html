@@ -16,37 +16,50 @@
 		<button id="startCrop" style="border: 1px solid #000000">Mark Crop Area</button>
 		<br />
 		<canvas style="visibility: hidden" id="canvas_crop"></canvas>
-		<img src="./dog.jpg" class="image" alt="" style="display: none" />
 		<script src="fabric.min.js"></script>
 		<script>
+			let currentImage;
 			// init canvas
-			const canvas = new fabric.Canvas("c", {
-				width: 1500,
-				height: 800,
-				strokeWidth: 5,
-				stroke: "rgba(100,200,200,0.5)",
-			});
+			const canvas = initCnvas();
 			canvas.preserveObjectStacking = true;
 
-			let currentImage;
+			addImage(canvas);
+			createMaskForCrop(canvas);
+			crop(canvas);
 
-			//  Add image to canvas
-			const dogImg = document.querySelector(".image");
-			const img = new fabric.Image(dogImg);
-			canvas.add(img);
-			canvas.centerObject(img);
-			canvas.setActiveObject(img);
-			currentImage = img;
-			canvas.renderAll();
+			function initCnvas() {
+				return new fabric.Canvas("c", {
+					width: 1200,
+					height: 600,
+					strokeWidth: 5,
+					stroke: "rgba(100,200,200,0.5)",
+				});
+			}
 
-			//  After click start crop add the mask to canvas
-			document.querySelector("#startCrop").addEventListener("click", function () {
-				// Create mask layer and show to canvas
-				addSelectionRect();
-				canvas.setActiveObject(selectionRect);
-				canvas.renderAll();
-				document.querySelector("#crop").style.display = "block";
-			});
+			function addImage(canvas) {
+				const dogImg = new Image();
+				dogImg.src = "dog.jpg";
+				dogImg.onload = function () {
+					const img = new fabric.Image(dogImg);
+					canvas.add(img);
+					canvas.centerObject(img);
+					canvas.setActiveObject(img);
+					currentImage = img;
+					canvas.renderAll();
+				};
+			}
+
+			function createMaskForCrop(canvas) {
+				//  After click start crop add the mask to canvas
+				document.querySelector("#startCrop").addEventListener("click", function () {
+					// Create mask layer and show to canvas
+					addSelectionRect();
+					canvas.setActiveObject(selectionRect);
+					canvas.renderAll();
+					document.querySelector("#crop").style.display = "block";
+				});
+			}
+
 			function addSelectionRect() {
 				selectionRect = new fabric.Rect({
 					fill: "rgba(0,0,0,0.3)",
@@ -73,47 +86,49 @@
 				canvas.add(selectionRect);
 			}
 
-			// Click the crop button croped the masked area
-			document.querySelector("#crop").addEventListener("click", function (event) {
-				document.querySelector("button#crop").style.display = "none";
+			function crop(canvas) {
+				// Click the crop button croped the masked area
+				document.querySelector("#crop").addEventListener("click", function (event) {
+					document.querySelector("button#crop").style.display = "none";
 
-				// create mask rectabgle for crop
-				let rect = new fabric.Rect({
-					left: selectionRect.left,
-					top: selectionRect.top,
-					width: selectionRect.getScaledWidth(),
-					height: selectionRect.getScaledHeight(),
-					absolutePositioned: true,
+					// create mask rectabgle for crop
+					let rect = new fabric.Rect({
+						left: selectionRect.left,
+						top: selectionRect.top,
+						width: selectionRect.getScaledWidth(),
+						height: selectionRect.getScaledHeight(),
+						absolutePositioned: true,
+					});
+
+					// add to the current image clicpPath property
+					currentImage.clipPath = rect;
+
+					// remove the mask layer
+					canvas.remove(selectionRect);
+
+					// init new image instance
+					var cropped = new Image();
+
+					// set src value of canvas croped area as toDataURL
+					cropped.src = canvas.toDataURL({
+						left: rect.left,
+						top: rect.top,
+						width: rect.width,
+						height: rect.height,
+					});
+
+					// after onload clear the canvas and add cropped image to the canvas
+					cropped.onload = function () {
+						canvas.clear();
+						image = new fabric.Image(cropped);
+						image.left = rect.left;
+						image.top = rect.top;
+						image.setCoords();
+						canvas.add(image);
+						canvas.renderAll();
+					};
 				});
-
-				// add to the current image clicpPath property
-				currentImage.clipPath = rect;
-
-				// remove the mask layer
-				canvas.remove(selectionRect);
-
-				// init new image instance
-				var cropped = new Image();
-
-				// set src value of canvas croped area as toDataURL
-				cropped.src = canvas.toDataURL({
-					left: rect.left,
-					top: rect.top,
-					width: rect.width,
-					height: rect.height,
-				});
-
-				// after onload clear the canvas and add cropped image to the canvas
-				cropped.onload = function () {
-					canvas.clear();
-					image = new fabric.Image(cropped);
-					image.left = rect.left;
-					image.top = rect.top;
-					image.setCoords();
-					canvas.add(image);
-					canvas.renderAll();
-				};
-			});
+			}
 		</script>
 	</body>
 </html>
